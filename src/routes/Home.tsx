@@ -65,9 +65,10 @@ export default function Home() {
                     <RoomSkeleton />
                 </>
             ) : null}
-            <Link to="/asdsad">404</Link>
             {data?.map((room) => (
                 <Room
+                    key={room.pk}
+                    pk={room.pk}
                     imageUrl={room.photos[0].file}
                     address={room.address}
                     rating={room.rating}
