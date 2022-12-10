@@ -18,8 +18,9 @@ export default function SocialLogin() {
             </HStack>
             <VStack>
                 <Button
+                    as="a"
+                    href="http://github.com/login/oauth/authorize?client_id=cc2132e9a21bafb6fd17&scope=read:user,user:email"
                     leftIcon={<FaGithub />}
-                    colorScheme={"telegram"}
                     w={"100%"}
                 >
                     Continue with Github
@@ -29,7 +30,7 @@ export default function SocialLogin() {
                     colorScheme={"yellow"}
                     w={"100%"}
                 >
-                    Continue with KaKao
+                    Continue with Kakao
                 </Button>
             </VStack>
         </Box>

@@ -52,8 +52,8 @@ export default function RoomDetail() {
             >
                 {[0, 1, 2, 3, 4].map((index) => (
                     <GridItem
-                        colSpan={index == 0 ? 2 : 1}
-                        rowSpan={index == 0 ? 2 : 1}
+                        colSpan={index === 0 ? 2 : 1}
+                        rowSpan={index === 0 ? 2 : 1}
                         overflow={"hidden"}
                         key={index}
                     >
@@ -107,7 +107,7 @@ export default function RoomDetail() {
                             <Text>•</Text>
                             <Text>
                                 {reviewsData?.length} review
-                                {reviewsData?.length == 1 ? "" : "s"}
+                                {reviewsData?.length === 1 ? "" : "s"}
                             </Text>
                         </HStack>
                     </Skeleton>
