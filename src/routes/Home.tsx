@@ -1,31 +1,12 @@
 import { Grid } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
 import { getRooms } from "../api";
 import Room from "../components/Room";
 import RoomSkeleton from "../components/RoomSkeleton";
-
-interface IPhotos {
-    pk: number;
-    file: string;
-    description: string;
-}
-
-interface IRoom {
-    pk: number;
-    name: string;
-    country: string;
-    address: string;
-    city: string;
-    price: number;
-    rating: number;
-    is_owner: boolean;
-    is_liked: boolean;
-    photos: IPhotos[];
-}
+import { IRoomList } from "../types";
 
 export default function Home() {
-    const { isLoading, data } = useQuery<IRoom[]>(["rooms"], getRooms);
+    const { isLoading, data } = useQuery<IRoomList[]>(["rooms"], getRooms);
     return (
         <Grid
             mt={10}

@@ -1,4 +1,5 @@
 import {
+    Avatar,
     Box,
     Button,
     HStack,
@@ -10,10 +11,13 @@ import {
     useDisclosure,
 } from "@chakra-ui/react";
 import { FaAirbnb, FaMoon, FaSun } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import useUser from "../lib/useUser";
 import LoginModal from "./LoginModal";
 import SignUpModal from "./SignUpModal";
 
 export default function Header() {
+    const { userLoading, isLoggedIn, user } = useUser();
     const {
         isOpen: isLogInOpen,
         onClose: onLogInClose,
@@ -32,7 +36,7 @@ export default function Header() {
             justifyContent={"space-between"}
             alignItems={"center"}
             py={5}
-            px={20}
+            px={40}
             direction={{
                 sm: "column",
                 md: "row",
@@ -43,9 +47,11 @@ export default function Header() {
             }}
             borderBottomWidth={1}
         >
-            <Box color={logoColor}>
-                <FaAirbnb size={"48"} />
-            </Box>
+            <Link to="/">
+                <Box color={logoColor}>
+                    <FaAirbnb size={"48"} />
+                </Box>
+            </Link>
             <HStack spacing={2}>
                 <IconButton
                     onClick={toggleColorMode}
@@ -53,12 +59,23 @@ export default function Header() {
                     aria-label="Toggle dark mode"
                     icon={<SignUpIcon />}
                 />
-                <Button onClick={onLogInOpen}>Sign In</Button>
-                <LightMode>
-                    <Button onClick={onSignUpOpen} colorScheme={"red"}>
-                        Sign UP
-                    </Button>
-                </LightMode>
+                {!userLoading ? (
+                    !isLoggedIn ? (
+                        <>
+                            <Button onClick={onLogInOpen}>Sign In</Button>
+                            <LightMode>
+                                <Button
+                                    onClick={onSignUpOpen}
+                                    colorScheme={"red"}
+                                >
+                                    Sign UP
+                                </Button>
+                            </LightMode>
+                        </>
+                    ) : (
+                        <Avatar size={"md"} />
+                    )
+                ) : null}
             </HStack>
             <LoginModal isOpen={isLogInOpen} onClose={onLogInClose} />
             <SignUpModal isOpen={isSignUpOpen} onClose={onSignUpClose} />
