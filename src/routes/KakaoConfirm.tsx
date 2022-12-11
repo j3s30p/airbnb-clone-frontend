@@ -2,14 +2,14 @@ import { Heading, Spinner, Text, useToast, VStack } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { githubLogIn } from "../api";
+import { kakaoLogIn } from "../api";
 
-export default function GithubConfirm() {
+export default function KakaoConfirm() {
     const { search } = useLocation();
     const toast = useToast();
     const queryClient = useQueryClient();
     const navigate = useNavigate();
-    const mutation = useMutation(githubLogIn, {
+    const mutation = useMutation(kakaoLogIn, {
         onSuccess: () => {
             toast({
                 status: "success",

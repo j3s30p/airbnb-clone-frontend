@@ -10,12 +10,14 @@ import {
     MenuItem,
     MenuList,
     Stack,
+    ToastId,
     useColorMode,
     useColorModeValue,
     useDisclosure,
     useToast,
 } from "@chakra-ui/react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRef } from "react";
 import { FaAirbnb, FaMoon, FaSun } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { logOut } from "../api";
@@ -40,22 +42,31 @@ export default function Header() {
     const SignUpIcon = useColorModeValue(FaMoon, FaSun);
     const toast = useToast();
     const queryClient = useQueryClient();
+    const toastId = useRef<ToastId>();
+    const mutation = useMutation(logOut, {
+        onMutate: () => {
+            toastId.current = toast({
+                title: "Log out ...",
+                description: "로그아웃 중 입니다.",
+                status: "loading",
+                position: "bottom-right",
+            });
+        },
+        onSuccess: () => {
+            if (toastId.current) {
+                queryClient.refetchQueries([`me`]);
+                toast.update(toastId.current, {
+                    title: "Done!",
+                    description: "로그아웃 되었습니다.",
+                    status: "success",
+                    position: "bottom-right",
+                    isClosable: true,
+                });
+            }
+        },
+    });
     const onLogOut = async () => {
-        const toastId = toast({
-            title: "Log out ...",
-            description: "로그아웃 중 입니다.",
-            status: "loading",
-            position: "bottom-right",
-        });
-        await logOut();
-        queryClient.refetchQueries([`me`]);
-        toast.update(toastId, {
-            title: "Done!",
-            description: "로그아웃 되었습니다.",
-            status: "success",
-            position: "bottom-right",
-            isClosable: true,
-        });
+        mutation.mutate();
     };
     return (
         <Stack
@@ -88,13 +99,13 @@ export default function Header() {
                 {!userLoading ? (
                     !isLoggedIn ? (
                         <>
-                            <Button onClick={onLogInOpen}>Sign In</Button>
+                            <Button onClick={onLogInOpen}>Log In</Button>
                             <LightMode>
                                 <Button
                                     onClick={onSignUpOpen}
                                     colorScheme={"red"}
                                 >
-                                    Sign UP
+                                    Sign Up
                                 </Button>
                             </LightMode>
                         </>
