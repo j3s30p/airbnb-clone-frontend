@@ -22,8 +22,8 @@ import { FaAirbnb, FaMoon, FaSun } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { logOut } from "../api";
 import useUser from "../lib/useUser";
-import LoginModal from "./LoginModal";
-import SignUpModal from "./SignUpModal";
+import LoginModal from "./Auth/LoginModal";
+import SignUpModal from "./Auth/SignUpModal";
 
 export default function Header() {
     const { userLoading, isLoggedIn, user } = useUser();

@@ -11,26 +11,29 @@ import {
     ModalContent,
     ModalHeader,
     ModalOverlay,
-    Text,
     useToast,
     VStack,
 } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { FaUserAlt, FaLock } from "react-icons/fa";
-import { usernameLogIn } from "../api";
+import { FaUserAlt, FaLock, FaEnvelope, FaUserPlus } from "react-icons/fa";
+import { userSignUp } from "../../api";
+
 import SocialLogin from "./SocialLogin";
 
-interface LoginModalProps {
+interface SignUpModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
+
 interface IForm {
+    name: string;
     username: string;
     password: string;
+    email: string;
 }
 
-export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
+export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
     const {
         register,
         handleSubmit,
@@ -39,30 +42,57 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     } = useForm<IForm>();
     const toast = useToast();
     const queryClient = useQueryClient();
-    const mutaition = useMutation(usernameLogIn, {
-        onSuccess: (data) => {
+    const mutation = useMutation(userSignUp, {
+        onSuccess: () => {
             toast({
                 status: "success",
                 title: "Welcome!",
-                description: "로그인 되었습니다.",
+                description: "회원가입 되었습니다.",
                 position: "bottom-right",
             });
             onClose();
             reset();
             queryClient.refetchQueries(["me"]);
         },
+        onError: () => {
+            toast({
+                status: "error",
+                title: "Error!",
+                description: "이미 사용중인 email입니다.",
+                position: "bottom-right",
+            });
+        },
     });
-    const onSubmit = ({ username, password }: IForm) =>
-        mutaition.mutate({ username, password });
+    const onSubmit = ({ name, username, password, email }: IForm) =>
+        mutation.mutate({ name, username, password, email });
+
     return (
         <Modal onClose={onClose} isOpen={isOpen}>
             <ModalOverlay />
             <ModalContent>
-                <ModalHeader>Log In</ModalHeader>
+                <ModalHeader>Sign Up</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody as={"form"} onSubmit={handleSubmit(onSubmit)}>
                     <VStack>
-                        <InputGroup size={"md"}>
+                        <InputGroup>
+                            <InputLeftElement
+                                children={
+                                    <Box color={"gray.500"}>
+                                        <FaUserPlus />
+                                    </Box>
+                                }
+                            />
+                            <Input
+                                isInvalid={Boolean(errors.name?.message)}
+                                required
+                                {...register("name", {
+                                    required: "name을 작성해주세요.",
+                                })}
+                                variant={"filled"}
+                                placeholder="name"
+                            ></Input>
+                        </InputGroup>
+                        <InputGroup>
                             <InputLeftElement
                                 children={
                                     <Box color={"gray.500"}>
@@ -80,7 +110,26 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                 placeholder="username"
                             ></Input>
                         </InputGroup>
-                        <InputGroup size={"md"}>
+                        <InputGroup>
+                            <InputLeftElement
+                                children={
+                                    <Box color={"gray.500"}>
+                                        <FaEnvelope />
+                                    </Box>
+                                }
+                            />
+                            <Input
+                                isInvalid={Boolean(errors.email?.message)}
+                                required
+                                {...register("email", {
+                                    required: "email을 작성해주세요.",
+                                })}
+                                variant={"filled"}
+                                type="email"
+                                placeholder="email"
+                            ></Input>
+                        </InputGroup>
+                        <InputGroup>
                             <InputLeftElement
                                 children={
                                     <Box color={"gray.500"}>
@@ -100,24 +149,15 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                             ></Input>
                         </InputGroup>
                     </VStack>
-                    {mutaition.isError ? (
-                        <Text
-                            color={"red.500"}
-                            textAlign="center"
-                            fontSize={"small"}
-                        >
-                            Username 또는 Password가 잘못 입력되었습니다.
-                        </Text>
-                    ) : null}
                     <LightMode>
                         <Button
-                            isLoading={mutaition.isLoading}
+                            isLoading={mutation.isLoading}
                             type="submit"
                             colorScheme={"red"}
                             w={"100%"}
                             mt={4}
                         >
-                            Log In
+                            Sign Up
                         </Button>
                     </LightMode>
                     <SocialLogin />

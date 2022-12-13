@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import useUser from "../lib/useUser";
+import useUser from "../../lib/useUser";
 
 interface IProtectedPageProps {
     children: React.ReactNode;

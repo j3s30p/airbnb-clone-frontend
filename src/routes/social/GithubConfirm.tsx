@@ -2,14 +2,15 @@ import { Heading, Spinner, Text, useToast, VStack } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { kakaoLogIn } from "../api";
+import { githubLogIn } from "../../api";
+import { Helmet } from "react-helmet";
 
-export default function KakaoConfirm() {
+export default function GithubConfirm() {
     const { search } = useLocation();
     const toast = useToast();
     const queryClient = useQueryClient();
     const navigate = useNavigate();
-    const mutation = useMutation(kakaoLogIn, {
+    const mutation = useMutation(githubLogIn, {
         onSuccess: () => {
             toast({
                 status: "success",
@@ -33,6 +34,9 @@ export default function KakaoConfirm() {
     }, []);
     return (
         <VStack justifyContent={"center"} mt={40}>
+            <Helmet>
+                <title>Github login</title>
+            </Helmet>
             <Heading>로그인 중입니다.</Heading>
             <Text>페이지를 닫지 말아주세요.</Text>
             <Spinner mt={10} size={"lg"}></Spinner>

@@ -1,9 +1,10 @@
 import { Grid } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { getRooms } from "../api";
-import Room from "../components/Room";
-import RoomSkeleton from "../components/RoomSkeleton";
+import Room from "../components/Room/Room";
+import RoomSkeleton from "../components/Room/RoomSkeleton";
 import { IRoomList } from "../types";
+import { Helmet } from "react-helmet";
 
 export default function Home() {
     const { isLoading, data } = useQuery<IRoomList[]>(["rooms"], getRooms);
@@ -24,6 +25,9 @@ export default function Home() {
                 "2xl": "repeat(5, 1fr)",
             }}
         >
+            <Helmet>
+                <title>Airbnb</title>
+            </Helmet>
             {isLoading ? (
                 <>
                     <RoomSkeleton />

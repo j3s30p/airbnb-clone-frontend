@@ -1,8 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 import Root from "./components/Root";
-import GithubConfirm from "./routes/GithubConfirm";
+import GithubConfirm from "./routes/social/GithubConfirm";
 import Home from "./routes/Home";
-import KakaoConfirm from "./routes/KakaoConfirm";
+import KakaoConfirm from "./routes/social/KakaoConfirm";
 import NotFound from "./routes/NotFound";
 import RoomDetail from "./routes/RoomDetail";
 import UploadPhotos from "./routes/UploadPhotos";

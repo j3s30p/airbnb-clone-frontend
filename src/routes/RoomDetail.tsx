@@ -1,6 +1,7 @@
 import {
     Avatar,
     Box,
+    Button,
     Container,
     Grid,
     GridItem,
@@ -11,11 +12,16 @@ import {
     Text,
     VStack,
 } from "@chakra-ui/react";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import "../calender.css";
 import { useQuery } from "@tanstack/react-query";
 import { FaStar } from "react-icons/fa";
 import { useParams } from "react-router-dom";
-import { getRoom, getRoomReviews } from "../api";
+import { checkBooking, getRoom, getRoomReviews } from "../api";
 import { IRoomDetail, IRoomReview } from "../types";
+import { useState } from "react";
+import { Helmet } from "react-helmet";
 
 export default function RoomDetail() {
     const { roomPk } = useParams();
@@ -26,6 +32,13 @@ export default function RoomDetail() {
     const { data: reviewsData, isLoading: isReviewsLoading } = useQuery<
         IRoomReview[]
     >([`rooms`, roomPk, `reviews`], getRoomReviews);
+    const [dates, setDates] = useState<Date[]>();
+    const { data: checkBookingData, isLoading: isCheckingBooking } = useQuery(
+        ["check", roomPk, dates],
+        checkBooking,
+        { enabled: dates !== undefined, cacheTime: 0 }
+    );
+    console.log(checkBookingData, isCheckingBooking);
     return (
         <Box
             mt={10}
@@ -34,9 +47,12 @@ export default function RoomDetail() {
                 lg: 40,
             }}
         >
+            <Helmet>
+                <title>{data ? data.name : "loading..."}</title>
+            </Helmet>
             <Skeleton
                 height={"43px"}
-                w={!isLoading ? "100%" : "40%"}
+                w={!isLoading ? "100%" : " 40%"}
                 isLoaded={!isLoading}
             >
                 <Heading>{data?.name}</Heading>
@@ -70,75 +86,112 @@ export default function RoomDetail() {
                     </GridItem>
                 ))}
             </Grid>
-
-            <HStack mt={10} w={"40%"} justifyContent={"space-between"}>
-                <VStack alignItems={"flex-start"}>
-                    <Skeleton isLoaded={!isLoading} height="30px">
-                        <Heading>House hoted by {data?.owner.name}</Heading>
-                    </Skeleton>
-                    <Skeleton isLoaded={!isLoading}>
-                        <HStack justifyContent={"flex-start"} w="100%">
-                            <Text>{data?.toilets} toilet</Text>
-                            <Text>•</Text>
-                            <Text>
-                                {data?.rooms} room{data?.rooms === 1 ? "" : "s"}
-                            </Text>
-                        </HStack>
-                    </Skeleton>
-                </VStack>
-                <Avatar
-                    name={data?.owner.name}
-                    size={"lg"}
-                    src={data?.owner.profile_photo}
-                />
-            </HStack>
-            <Box mt={10}>
-                <Heading mb={5} fontSize={"2xl"}>
-                    <Skeleton
-                        height={"43px"}
-                        isLoaded={!isReviewsLoading}
-                        w="20%"
-                    >
-                        <HStack>
-                            <FaStar color="yellow.400" />{" "}
-                            <Text>{data?.rating}</Text>
-                            <Text>•</Text>
-                            <Text>
-                                {reviewsData?.length} review
-                                {reviewsData?.length === 1 ? "" : "s"}
-                            </Text>
-                        </HStack>
-                    </Skeleton>
-                </Heading>
-                <Container mt={10} maxW={"container.lg"} mx={"none"}>
-                    <Grid gap={10} templateColumns={"1fr 1fr"}>
-                        {reviewsData?.map((review, index) => (
-                            <VStack key={index} alignItems={"flex-start"}>
+            <Grid gap={60} templateColumns={"2fr 1fr"}>
+                <Box>
+                    <HStack mt={10} justifyContent={"space-between"}>
+                        <VStack alignItems={"flex-start"}>
+                            <Skeleton isLoaded={!isLoading} height="30px">
+                                <Heading>
+                                    House hoted by {data?.owner.name}
+                                </Heading>
+                            </Skeleton>
+                            <Skeleton isLoaded={!isLoading}>
+                                <HStack justifyContent={"flex-start"} w="100%">
+                                    <Text>{data?.toilets} toilet</Text>
+                                    <Text>•</Text>
+                                    <Text>
+                                        {data?.rooms} room
+                                        {data?.rooms === 1 ? "" : "s"}
+                                    </Text>
+                                </HStack>
+                            </Skeleton>
+                        </VStack>
+                        <Avatar
+                            name={data?.owner.name}
+                            size={"lg"}
+                            src={data?.owner.profile_photo}
+                        />
+                    </HStack>
+                    <Box mt={10}>
+                        <Heading mb={5} fontSize={"2xl"}>
+                            <Skeleton isLoaded={!isReviewsLoading}>
                                 <HStack>
-                                    <Avatar
-                                        name={review.user.name}
-                                        src={review.user.profile_photo}
-                                        size="md"
-                                    />
+                                    <FaStar color="yellow.400" />{" "}
+                                    <Text>{data?.rating}</Text>
+                                    <Text>•</Text>
+                                    <Text>
+                                        {reviewsData?.length} review
+                                        {reviewsData?.length === 1 ? "" : "s"}
+                                    </Text>
+                                </HStack>
+                            </Skeleton>
+                        </Heading>
+                        <Container
+                            mt={16}
+                            maxW={"container.lg"}
+                            marginX={"none"}
+                        >
+                            <Grid gap={10} templateColumns="1fr 1fr">
+                                {reviewsData?.map((review, index) => (
                                     <VStack
-                                        spacing={0}
+                                        key={index}
                                         alignItems={"flex-start"}
                                     >
-                                        <Heading fontSize={"md"}>
-                                            {review.user.username}
-                                        </Heading>
-                                        <HStack spacing={1}>
-                                            <FaStar size={"12px"} />
-                                            <Text>{review.rating}</Text>
+                                        <HStack>
+                                            <Avatar
+                                                name={review.user.name}
+                                                src={review.user.profile_photo}
+                                                size="md"
+                                            />
+                                            <VStack
+                                                spacing={0}
+                                                alignItems={"flex-start"}
+                                            >
+                                                <Heading fontSize={"md"}>
+                                                    {review.user.username}
+                                                </Heading>
+                                                <HStack spacing={1}>
+                                                    <FaStar size={"12px"} />
+                                                    <Text>{review.rating}</Text>
+                                                </HStack>
+                                            </VStack>
                                         </HStack>
+                                        <Text>{review.payload}</Text>
                                     </VStack>
-                                </HStack>
-                                <Text>{review.payload}</Text>
-                            </VStack>
-                        ))}
-                    </Grid>
-                </Container>
-            </Box>
+                                ))}
+                            </Grid>
+                        </Container>
+                    </Box>
+                </Box>
+                <Box paddingTop={10}>
+                    <Calendar
+                        goToRangeStartOnSelect
+                        onChange={setDates}
+                        minDate={new Date()}
+                        maxDate={
+                            new Date(
+                                Date.now() + 60 * 60 * 24 * 7 * 4 * 12 * 1000
+                            )
+                        }
+                        minDetail="month"
+                        prev2Label={null}
+                        next2Label={null}
+                        selectRange
+                    />
+                    <Button
+                        disabled={!checkBookingData?.ok}
+                        isLoading={isCheckingBooking && dates !== undefined}
+                        my={5}
+                        w={"100%"}
+                        colorScheme={"red"}
+                    >
+                        Make Booking
+                    </Button>
+                    {!isCheckingBooking && !checkBookingData?.ok ? (
+                        <Text color="red.500">이미 예약된 날짜입니다.</Text>
+                    ) : null}
+                </Box>
+            </Grid>
         </Box>
     );
 }

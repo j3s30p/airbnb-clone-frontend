@@ -27,9 +27,10 @@ import {
     IUploadRoomVariables,
     uploadRoom,
 } from "../api";
-import HostOnlyPage from "../components/HostOnlyPage";
-import ProtectedPage from "../components/ProtectedPage";
+import HostOnlyPage from "../components/Protect/HostOnlyPage";
+import ProtectedPage from "../components/Protect/ProtectedPage";
 import { IAmenity, ICategory, IRoomDetail } from "../types";
+import { Helmet } from "react-helmet";
 
 export default function UploadRoom() {
     const { register, handleSubmit } = useForm<IUploadRoomVariables>();
@@ -58,6 +59,9 @@ export default function UploadRoom() {
     return (
         <ProtectedPage>
             <HostOnlyPage>
+                <Helmet>
+                    <title>Room Upload</title>
+                </Helmet>
                 <Box pb={40} mt={10} px={{ base: 10, lg: 40 }}>
                     <Container>
                         <Heading textAlign={"center"}>Upload Room</Heading>
