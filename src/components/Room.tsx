@@ -50,6 +50,7 @@ export default function Room({
                     rounded={"2xl"}
                 >
                     <Image
+                        objectFit={"cover"}
                         maxW="280"
                         minW="280"
                         maxH="280"
