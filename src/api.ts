@@ -2,7 +2,6 @@ import Cookie from "js-cookie";
 import { QueryFunctionContext } from "@tanstack/react-query";
 import axios from "axios";
 import { formatDate } from "./lib/utils";
-import { IUser } from "./types";
 
 const instance = axios.create({
     baseURL: "http://127.0.0.1:8000/api/v1",
@@ -21,6 +20,13 @@ export const getRoomReviews = ({ queryKey }: QueryFunctionContext) => {
     const [_, roomPk] = queryKey;
     return instance
         .get(`rooms/${roomPk}/reviews`)
+        .then((response) => response.data);
+};
+
+export const getRoomAmenities = ({ queryKey }: QueryFunctionContext) => {
+    const [_, roomPk] = queryKey;
+    return instance
+        .get(`rooms/${roomPk}/amenities`)
         .then((response) => response.data);
 };
 
@@ -136,6 +142,18 @@ export interface IUploadRoomVariables {
 export const uploadRoom = (variables: IUploadRoomVariables) =>
     instance
         .post(`rooms/`, variables, {
+            headers: {
+                "X-CSRFToken": Cookie.get("csrftoken") || "",
+            },
+        })
+        .then((response) => response.data);
+
+export interface IEditRoomVariables extends IUploadRoomVariables {
+    roomPk: string;
+}
+export const editRoom = (variables: IEditRoomVariables) =>
+    instance
+        .put(`rooms/${variables.roomPk}`, variables, {
             headers: {
                 "X-CSRFToken": Cookie.get("csrftoken") || "",
             },

@@ -48,7 +48,7 @@ export interface IRoomDetail extends IRoomList {
     is_liked: boolean;
     category: ICategory;
     owner: IRoomOwner;
-    amenities: IAmenity;
+    amenities: IAmenity[];
 }
 
 export interface IRoomReview {

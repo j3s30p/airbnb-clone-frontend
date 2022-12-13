@@ -13,7 +13,6 @@ import {
     Image,
     Input,
     InputGroup,
-    InputLeftAddon,
     Skeleton,
     Text,
     useToast,
@@ -23,10 +22,17 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "../calender.css";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { FaStar } from "react-icons/fa";
-import { useParams } from "react-router-dom";
-import { checkBooking, getRoom, getRoomReviews, roomBooking } from "../api";
-import { IRoomDetail, IRoomReview } from "../types";
+import { FaPencilAlt, FaStar } from "react-icons/fa";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+    checkBooking,
+    getAmenities,
+    getRoom,
+    getRoomAmenities,
+    getRoomReviews,
+    roomBooking,
+} from "../api";
+import { IAmenity, IRoomDetail, IRoomReview } from "../types";
 import { useState } from "react";
 import { Helmet } from "react-helmet";
 import { useForm } from "react-hook-form";
@@ -35,6 +41,7 @@ import useUser from "../lib/useUser";
 
 export default function RoomDetail() {
     const { register, handleSubmit, reset, watch } = useForm();
+    const navigate = useNavigate();
     const { roomPk } = useParams();
     const { user } = useUser();
     const { isLoading, data } = useQuery<IRoomDetail>(
@@ -44,6 +51,9 @@ export default function RoomDetail() {
     const { data: reviewsData, isLoading: isReviewsLoading } = useQuery<
         IRoomReview[]
     >([`rooms`, roomPk, `reviews`], getRoomReviews);
+    const { data: amenities, isLoading: isAmenitiesLoading } = useQuery<
+        IAmenity[]
+    >([`rooms`, roomPk, `amenities`], getRoomAmenities);
     const [dates, setDates] = useState<Date[]>();
     const { data: checkBookingData, isLoading: isCheckingBooking } = useQuery(
         ["check", roomPk, dates],
@@ -80,6 +90,10 @@ export default function RoomDetail() {
         }
         reset();
     };
+    const onEditClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        navigate(`/rooms/${roomPk}/edit`);
+    };
     return (
         <Box
             mt={10}
@@ -91,13 +105,20 @@ export default function RoomDetail() {
             <Helmet>
                 <title>{data ? data.name : "loading..."}</title>
             </Helmet>
-            <Skeleton
-                height={"43px"}
-                w={!isLoading ? "100%" : " 40%"}
-                isLoaded={!isLoading}
-            >
-                <Heading>{data?.name}</Heading>
-            </Skeleton>
+            <HStack>
+                <Skeleton
+                    height={"43px"}
+                    w={!isLoading ? "100%" : " 40%"}
+                    isLoaded={!isLoading}
+                >
+                    <Heading>{data?.name}</Heading>
+                </Skeleton>
+                {data?.is_owner ? (
+                    <Button onClick={onEditClick}>
+                        <FaPencilAlt />
+                    </Button>
+                ) : null}
+            </HStack>
             <Grid
                 mt={10}
                 rounded="xl"
@@ -129,7 +150,7 @@ export default function RoomDetail() {
             </Grid>
             <Grid gap={60} templateColumns={"2fr 1fr"}>
                 <Box>
-                    <HStack mt={10} justifyContent={"space-between"}>
+                    <HStack mt={10} mb={10} justifyContent={"space-between"}>
                         <VStack alignItems={"flex-start"}>
                             <Skeleton isLoaded={!isLoading} height="30px">
                                 <Heading>
@@ -153,6 +174,31 @@ export default function RoomDetail() {
                             src={data?.owner.profile_photo}
                         />
                     </HStack>
+                    <hr />
+                    <Box mt={10} mb={10}>
+                        <VStack alignItems={"flex-start"} spacing={10}>
+                            <Text>{data?.description}</Text>
+                            <Text fontSize={"3xl"}>{data?.category.name}</Text>
+                        </VStack>
+                    </Box>
+                    <hr />
+                    <Box mt={10} mb={10}>
+                        <Heading mb={10}>숙소 편의 시설</Heading>
+                        <Grid
+                            templateRows={"1fr 1fr"}
+                            templateColumns={"repeat(2, 1fr)"}
+                        >
+                            {amenities?.map((amenity) => (
+                                <GridItem gap={60} key={amenity.pk}>
+                                    <Text fontSize={"2xl"} color={"red.400"}>
+                                        {amenity.name}
+                                    </Text>
+                                    <Text>{amenity.description}</Text>
+                                </GridItem>
+                            ))}
+                        </Grid>
+                    </Box>
+                    <hr />
                     <Box mt={10}>
                         <Heading mb={5} fontSize={"2xl"}>
                             <Skeleton isLoaded={!isReviewsLoading}>

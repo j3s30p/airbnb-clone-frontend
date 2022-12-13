@@ -7,6 +7,7 @@ import NotFound from "./routes/NotFound";
 import RoomDetail from "./routes/RoomDetail";
 import UploadPhotos from "./routes/UploadPhotos";
 import UploadRoom from "./routes/UploadRoom";
+import EditRoom from "./routes/EditRoom";
 
 const router = createBrowserRouter([
     {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
             {
                 path: "rooms/:roomPk",
                 element: <RoomDetail />,
+            },
+            {
+                path: "rooms/:roomPk/edit",
+                element: <EditRoom />,
             },
             {
                 path: "rooms/:roomPk/photos",
