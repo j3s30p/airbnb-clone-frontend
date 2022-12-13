@@ -3,28 +3,40 @@ import {
     Box,
     Button,
     Container,
+    FormControl,
+    FormHelperText,
+    FormLabel,
     Grid,
     GridItem,
     Heading,
     HStack,
     Image,
+    Input,
+    InputGroup,
+    InputLeftAddon,
     Skeleton,
     Text,
+    useToast,
     VStack,
 } from "@chakra-ui/react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "../calender.css";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { FaStar } from "react-icons/fa";
 import { useParams } from "react-router-dom";
-import { checkBooking, getRoom, getRoomReviews } from "../api";
+import { checkBooking, getRoom, getRoomReviews, roomBooking } from "../api";
 import { IRoomDetail, IRoomReview } from "../types";
 import { useState } from "react";
 import { Helmet } from "react-helmet";
+import { useForm } from "react-hook-form";
+import { formatDate } from "../lib/utils";
+import useUser from "../lib/useUser";
 
 export default function RoomDetail() {
+    const { register, handleSubmit, reset, watch } = useForm();
     const { roomPk } = useParams();
+    const { user } = useUser();
     const { isLoading, data } = useQuery<IRoomDetail>(
         [`rooms`, roomPk],
         getRoom
@@ -38,7 +50,36 @@ export default function RoomDetail() {
         checkBooking,
         { enabled: dates !== undefined, cacheTime: 0 }
     );
-    console.log(checkBookingData, isCheckingBooking);
+    const toast = useToast();
+    const mutation = useMutation(roomBooking, {
+        onSuccess: () => {
+            toast({
+                status: "success",
+                title: "Booking create",
+                description: "예약이 완료되었습니다.",
+                position: "bottom-right",
+            });
+            reset();
+        },
+    });
+    const onSubmit = () => {
+        if (!user) {
+            toast({
+                status: "error",
+                title: "Please Log In",
+                description: "로그인 해주세요",
+                position: "bottom-right",
+            });
+        }
+        if (roomPk && dates && user) {
+            const [firstDate, secondDate] = dates;
+            const checkIn = formatDate(firstDate);
+            const checkOut = formatDate(secondDate);
+            const guests = watch("guests");
+            mutation.mutate({ checkIn, checkOut, roomPk, guests });
+        }
+        reset();
+    };
     return (
         <Box
             mt={10}
@@ -164,32 +205,53 @@ export default function RoomDetail() {
                     </Box>
                 </Box>
                 <Box paddingTop={10}>
-                    <Calendar
-                        goToRangeStartOnSelect
-                        onChange={setDates}
-                        minDate={new Date()}
-                        maxDate={
-                            new Date(
-                                Date.now() + 60 * 60 * 24 * 7 * 4 * 12 * 1000
-                            )
-                        }
-                        minDetail="month"
-                        prev2Label={null}
-                        next2Label={null}
-                        selectRange
-                    />
-                    <Button
-                        disabled={!checkBookingData?.ok}
-                        isLoading={isCheckingBooking && dates !== undefined}
-                        my={5}
-                        w={"100%"}
-                        colorScheme={"red"}
+                    <VStack
+                        as={"form"}
+                        onSubmit={handleSubmit(onSubmit)}
+                        spacing={8}
                     >
-                        Make Booking
-                    </Button>
-                    {!isCheckingBooking && !checkBookingData?.ok ? (
-                        <Text color="red.500">이미 예약된 날짜입니다.</Text>
-                    ) : null}
+                        <Calendar
+                            goToRangeStartOnSelect
+                            onChange={setDates}
+                            minDate={new Date()}
+                            maxDate={
+                                new Date(
+                                    Date.now() +
+                                        60 * 60 * 24 * 7 * 4 * 12 * 1000
+                                )
+                            }
+                            minDetail="month"
+                            prev2Label={null}
+                            next2Label={null}
+                            selectRange
+                        />
+                        <FormControl>
+                            <FormLabel>Guests</FormLabel>
+                            <InputGroup>
+                                <Input
+                                    {...register("guests", {
+                                        required: true,
+                                    })}
+                                    required
+                                    type={"number"}
+                                    min={1}
+                                />
+                            </InputGroup>
+                            <FormHelperText>숙박 인원</FormHelperText>
+                        </FormControl>
+                        <Button
+                            type="submit"
+                            disabled={!checkBookingData?.ok}
+                            isLoading={isCheckingBooking && dates !== undefined}
+                            w={"100%"}
+                            colorScheme={"red"}
+                        >
+                            Make Booking
+                        </Button>
+                        {!isCheckingBooking && !checkBookingData?.ok ? (
+                            <Text color="red.500">이미 예약된 날짜입니다.</Text>
+                        ) : null}
+                    </VStack>
                 </Box>
             </Grid>
         </Box>
