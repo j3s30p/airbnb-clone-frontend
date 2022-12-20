@@ -196,11 +196,7 @@ export default function EditRoom() {
                                 </FormHelperText>
                             </FormControl>
                             <FormControl>
-                                <Checkbox
-                                    {...register("pet_friendly", {
-                                        required: true,
-                                    })}
-                                >
+                                <Checkbox {...register("pet_friendly")}>
                                     Pet Friendly?
                                 </Checkbox>
                             </FormControl>
